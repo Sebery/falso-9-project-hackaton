@@ -1,14 +1,14 @@
 /* DATA CONTROLLER */
 const dataController = (() => {
 	const data = {
-		projectName: "Hackaton Project",
+		projectName: "Dengue TRC.",
 		APIDATA: '',
 	};
 
 	const getData = async () => {
 	try {
 		let obj = await fetch(
-			"https://rickandmortyapi.com/api/character",
+			"https://newsapi.org/v2/everything?q=dengue&language=es&apiKey=41b7d7559d8541d69d5e128f3471bcd0",
 		);
 
 		let json = await obj.json();
@@ -29,10 +29,14 @@ const dataController = (() => {
 		getData: () => {
 			return data;
 		},
-		getAPIData: async (data) => {
+		getAPIData: async (data, ui) => {
 			let obj = await getData();
 
 			data.APIDATA = await obj;
+			/*data['APIDATA'].articles.forEach(e => {
+				console.log(e['urlToImage']);
+			});*/
+			ui.displayNews(data);
 		},
 	}
 
@@ -43,7 +47,10 @@ const dataController = (() => {
 const UIController = (() => {
 	const DOMStrings = {
 		titleElement: "title",
+		mainContainer: 'content',
 	};
+
+
 
 
 	return {
@@ -52,6 +59,22 @@ const UIController = (() => {
 		},
 		modifyTitleProject: (data) => {
 			document.getElementById(DOMStrings.titleElement).textContent = data.projectName;
+		},
+		displayNews: (data) => {
+			data['APIDATA'].articles.forEach(e => {
+				let template = `<div class="col mb-4">
+									<div class="card">
+										<img src="${e['urlToImage']}" class="card-img-top" alt="...">
+										<div class="card-body">
+											<h5 class="card-title">${e.title}</h5>
+											<p class="card-text">${e.description}</p>
+											<a href="#" class="btn btn-danger">Contactar Organizacion</a>
+										</div>
+									</div>
+								</div>`;
+
+				document.getElementById(DOMStrings.mainContainer).innerHTML += template;
+			});
 		},
 	};
 
@@ -70,10 +93,8 @@ const controller = ((UI, DATA) => {
 
 	return {
 		init: () => {
-			console.log("App has started...");
 			UI.modifyTitleProject(allData);
-			DATA.getAPIData(allData);
-			console.log(allData);
+			DATA.getAPIData(allData, UI);
 		},
 	};
 })(UIController, dataController);
